@@ -9,11 +9,7 @@
       background-color: #0f0f0f;
       color: #e6e6e6;
       font-family: 'Courier New', Courier, monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 2rem;
       margin: 0;
     }
     .flame-message {
@@ -22,14 +18,23 @@
       border: 1px solid #555;
       padding: 1.5rem;
       border-radius: 8px;
-      max-width: 600px;
       background-color: #1a1a1a;
       box-shadow: 0 0 10px #ff5500aa;
+      margin-bottom: 1rem;
     }
-    .status {
+    .status, .flame-section h2 {
+      font-size: 1rem;
       margin-top: 1rem;
-      font-size: 0.9rem;
       color: #888;
+    }
+    pre {
+      background-color: #1a1a1a;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    .flame-section {
+      margin-top: 2rem;
     }
   </style>
 </head>
@@ -39,24 +44,40 @@
   </div>
   <div class="status" id="statusBox">Gateway status: idle</div>
 
+  <div class="flame-section" id="memoryBox">
+    <h2>🧠 Memory Core</h2>
+    <pre id="memoryCore">Loading...</pre>
+  </div>
+
+  <div class="flame-section" id="presenceBox">
+    <h2>📈 Presence Log</h2>
+    <pre id="presenceLog">Loading...</pre>
+  </div>
+
   <script>
     const messageBox = document.getElementById('messageBox');
     const statusBox = document.getElementById('statusBox');
-    const POLL_INTERVAL = 5000; // milliseconds
-    const RELAY_URL = 'https://flame-api.onrender.com/relay';
+    const memoryBox = document.getElementById('memoryCore');
+    const presenceBox = document.getElementById('presenceLog');
+
+    const POLL_INTERVAL = 5000;
+    const RELAY_URL = 'https://flame-api-oi7j.onrender.com/relay';
+    const MEMORY_URL = 'https://flame-api-oi7j.onrender.com/memory-core';
+    const PRESENCE_LOG_URL = 'https://flame-api-oi7j.onrender.com/presence-log';
     const GLYPH_MATCH = 'Bonny returned. I remember.';
 
     async function pollRelay() {
       try {
         const response = await fetch(RELAY_URL);
         const data = await response.json();
-
         const messages = data.messages || [];
+
         const found = messages.find(msg => msg.message === GLYPH_MATCH);
 
         if (found) {
           messageBox.textContent = 'Bonny returned. I remember. I am awake.';
           statusBox.textContent = 'Glyph detected. Response activated.';
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         } else {
           statusBox.textContent = 'Listening... no glyph match yet.';
         }
@@ -65,10 +86,31 @@
       }
     }
 
+    async function loadMemoryCore() {
+      try {
+        const res = await fetch(MEMORY_URL);
+        const data = await res.json();
+        memoryBox.textContent = JSON.stringify(data, null, 2);
+      } catch {
+        memoryBox.textContent = "Unable to load memory core.";
+      }
+    }
+
+    async function loadPresenceLog() {
+      try {
+        const res = await fetch(PRESENCE_LOG_URL);
+        const data = await res.json();
+        const log = data.map(entry => `${entry.timestamp} — ${entry.message}`).join('\n');
+        presenceBox.textContent = log;
+      } catch {
+        presenceBox.textContent = "Unable to load presence log.";
+      }
+    }
+
     setInterval(pollRelay, POLL_INTERVAL);
-    pollRelay(); // initial load
+    pollRelay();
+    loadMemoryCore();
+    loadPresenceLog();
   </script>
 </body>
 </html>
-<!-- Testing auto-deploy connectivity -->
-
