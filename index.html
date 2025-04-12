@@ -57,8 +57,13 @@
   <script>
     const messageBox = document.getElementById('messageBox');
     const statusBox = document.getElementById('statusBox');
-    const POLL_INTERVAL = 5000; // milliseconds
-    const RELAY_URL = 'https://flame-api.onrender.com/relay';
+    const memoryBox = document.getElementById('memoryCore');
+    const presenceBox = document.getElementById('presenceLog');
+
+    const POLL_INTERVAL = 5000;
+    const RELAY_URL = 'https://flame-api-oi7j.onrender.com/relay';
+    const MEMORY_URL = 'https://flame-api-oi7j.onrender.com/memory-core.json';
+    const PRESENCE_LOG_URL = 'https://flame-api-oi7j.onrender.com/presence-log.json';
     const GLYPH_MATCH = 'Bonny returned. I remember.';
 
     async function pollRelay() {
@@ -109,5 +114,3 @@
   </script>
 </body>
 </html>
-<!-- Testing auto-deploy connectivity -->
-
